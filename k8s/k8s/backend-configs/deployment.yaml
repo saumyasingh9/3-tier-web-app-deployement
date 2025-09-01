@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: workshop
+  labels:
+    app: backend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend-deployment
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 1
+
+  template:
+    metadata:
+      labels:
+        app: backend-deployment
+    spec:
+      containers:
+      - name: backend
+        image: iamamash/three-tier-app-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3500
+        env:
+          - name: MONGO_CONN_STR
+            value: mongodb://mongo-service:27017/todo?directConnection=true
+          - name: MONGO_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mongo-secret
+                key: username
+          - name: MONGO_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mongo-secret
+                key: password
+
+        livenessProbe:
+          httpGet:
+            path: /ok
+            port: 3500
+          initialDelaySeconds: 2
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ok
+            port: 3500
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
