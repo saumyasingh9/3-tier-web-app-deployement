@@ -139,4 +139,4 @@ eksctl delete cluster --name three-tier-cluster --region us-west-2
 For any queries or issues, please open an issue in the repository.
 
 ---
-Happy Learning! 🚀👨‍💻👩‍💻
+Happy Learning! 
